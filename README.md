@@ -16,6 +16,14 @@ Open a terminal and run:
 cd $HOME && git clone https://github.com/ArshamEbr/Rosemary-Porter.git && cd Rosemary-Porter
 ```
 
+### 2.1 Download Rosemary files
+
+While you're inside the `Rosemary-Porter` folder, run:
+
+```bash
+curl -L -O https://github.com/ArshamEbr/Rosemary-Porter/releases/download/v1.1/pyro_porter.tar.xz && tar -xf pyro_porter.tar.xz
+```
+
 ### 2. Add the UKL Tool
 
 Unzip your `UKL.zip` **under the same directory** using `unzip UKL.zip`, so the structure looks like:
@@ -23,6 +31,9 @@ Unzip your `UKL.zip` **under the same directory** using `unzip UKL.zip`, so the 
 ```
 Rosemary-Porter/
 ├── UKL/
+├── product/
+├── system/
+├── system_ext/
 ├── Pyro.sh
 ├── ...
 ```
