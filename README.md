@@ -16,7 +16,7 @@ Open a terminal and run:
 cd $HOME && git clone https://github.com/ArshamEbr/Rosemary-Porter.git && cd Rosemary-Porter
 ```
 
-### 2.1 Download Rosemary files
+### 1.1 Download Rosemary files
 
 While you're inside the `Rosemary-Porter` folder, run:
 
