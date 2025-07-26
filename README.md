@@ -105,6 +105,7 @@ If everything completes successfully, your modified ROM will be available in the
 - Vendor patching isn't implemented yet — for now, just use the vendor from a previously ported ROM.
 - Open the `Pyro.sh` script and modify it to your heart's content, everything is explained with comments.
 - Run all scripts with `sudo` to ensure correct permissions.
+- Feel free to contribute or open issues! You can also find me on Telegram at @ArshamEbr.
 - Good luck! Happy porting 🎉
 
 ---
