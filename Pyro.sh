@@ -6,10 +6,10 @@
 # License: MIT
 
 # Configuration
-BASE_DIR="/home/arsham/rosemary/UKL/UnpackerSystem"
-SUPER_SOURCE_DIR="/home/arsham/rosemary/UKL/UnpackerSystem"
-SUPER_TARGET_DIR="/home/arsham/rosemary/UKL/UnpackerSuper"
-OUTPUT_DIR="/home/arsham/rosemary/output"
+BASE_DIR="UKL/UnpackerSystem"
+SUPER_SOURCE_DIR="UKL/UnpackerSystem"
+SUPER_TARGET_DIR="UKL/UnpackerSuper"
+OUTPUT_DIR="output"
 LOG_FILE="pyro_combined_$(date +%Y%m%d_%H%M%S).log"
 
 # Colors and formatting

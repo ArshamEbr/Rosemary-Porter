@@ -13,9 +13,7 @@ This guide will walk you through setting everything up and using the tool effect
 Open a terminal and run:
 
 ```bash
-cd $HOME
-git clone https://github.com/ArshamEbr/Rosemary-Porter.git
-cd Rosemary-Porter
+cd $HOME && git clone https://github.com/ArshamEbr/Rosemary-Porter.git && cd Rosemary-Porter
 ```
 
 ### 2. Add the UKL Tool
@@ -64,7 +62,7 @@ sudo UKL/run.sh
 
 ---
 
-### Step 3: Extract Super Partition
+### Step 3: Extract System Partitions
 
 1. From the main menu again, select `3` → **Unpack .img**
 2. Then select `2` → **Unpacking .img from folder: UKL/UnpackerSuper**
@@ -102,8 +100,10 @@ If everything completes successfully, your modified ROM will be available in the
 
 ## 🎯 Final Notes
 
-- Make sure you have basic familiarity with UKA/UKL tools.
+- Make sure you have basic familiarity with Linux & UKA/UKL tools.
 - Use only your device's `vendor.img` to avoid compatibility issues.
+- Vendor patching isn't implemented yet — for now, just use the vendor from a previously ported ROM.
+- Open the `Pyro.sh` script and modify it to your heart's content, everything is explained with comments.
 - Run all scripts with `sudo` to ensure correct permissions.
 - Good luck! Happy porting 🎉
 
