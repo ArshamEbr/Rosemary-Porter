@@ -1,2 +1,0 @@
-*.apk filter=lfs diff=lfs merge=lfs -text
-*.apex filter=lfs diff=lfs merge=lfs -text
