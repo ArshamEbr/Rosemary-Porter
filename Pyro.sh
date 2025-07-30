@@ -10,7 +10,7 @@ BASE_DIR="UKL/UnpackerSystem"
 SUPER_SOURCE_DIR="UKL/UnpackerSystem"
 SUPER_TARGET_DIR="UKL/UnpackerSuper"
 OUTPUT_DIR="output"
-LOG_FILE="pyro_combined_$(date +%Y%m%d_%H%M%S).log"
+LOG_FILE="pyro_$(date +%Y%m%d_%H%M%S).log"
 
 # Colors and formatting
 RED='\033[0;31m'
@@ -31,7 +31,7 @@ declare -A SCRIPTS=(
     [5]="Pyro_miext_prop_builder|Modify mi_ext build properties"
     [6]="Pyro_system_prop_builder|Modify system build properties"
     [7]="Pyro_system_ext_prop_builder|Modify system_ext build properties"
-    [8]="Super_packer_4000|Build sparse super image from partitions"
+    [8]="Pyro_super_packer|Build sparse super image from partitions"
 )
 
 # Function definitions
@@ -269,7 +269,7 @@ run_prop_builder() {
     
     # Property configurations for each type
     local -A PROPERTY_VALUES
-    local -A COMMENT_OUT_PROPS
+    local -a COMMENT_OUT_PROPS
     
     case "$prop_type" in
         "product")
@@ -413,6 +413,40 @@ run_prop_builder() {
                 ["persist.sys.smartcache.enable"]="false"
                 ["persist.sys.art_startup_class_preload.enable"]="false"
             )
+            COMMENT_OUT_PROPS=(
+                "ro.surface_flinger.ignore_hdr_camera_layers"         # T
+                "persist.sys.app_resurrection.enable"                 # T
+                "persist.sys.powmillet.enable"                        # T
+                "persist.sys.hdr_dimmer_supported"                    # T
+                "persist.sys.hdr_dimmer.hight_perf_mode"              # T
+                "ro.vendor.miui.support_esim"                         # T
+                "ro.miui.carrier.cota"                                # T
+                "ro.miui.cust_erofs"
+                "persist.sys.dexpreload.big_prime_cores"
+                "ro.vendor.radio.5g"
+                "ro.netflix.channel"
+                "ro.netflix.signup"
+                "ro.wps.prop.channel.path"
+                "ro.trackingId.com.lzd.appid"
+                "ro.csc.spotify.music.referrerid"
+                "ro.csc.spotify.music.partnerid"
+                "ro.booking.channel.path"
+                "ro.zalo.tracking"
+                "ro.com.agoda.consumer.preload"
+                "ro.miui.pai.preinstall.path"
+                "ro.appsflyer.preinstall.path"
+                "persist.sys.dexpreload.cpu_cores"   # 0-7
+                "persist.sys.dexpreload.other_cores" # 0-6
+                "ro.vendor.vodata_support"
+                "persist.sys.precache.number"
+                "persist.sys.precache.appstrs6"
+                "persist.sys.precache.appstrs5"
+                "persist.sys.precache.appstrs4"
+                "persist.sys.precache.appstrs3"
+                "persist.sys.precache.appstrs2"
+                "persist.sys.precache.appstrs1"
+                "ro.config.low_ram.threshold_gb"
+            )
             ;;
         "system")
             PROPERTY_VALUES=(
@@ -423,16 +457,22 @@ run_prop_builder() {
                 ["ro.vendor.mtk_omacp_support"]="1"
                 ["ro.surface_flinger.game_default_frame_rate_override"]="60"
             )
+            COMMENT_OUT_PROPS=(
+            )
             ;;
         "system_ext")
             PROPERTY_VALUES=(
                 ["ro.surface_flinger.supports_background_blur"]="1"
                 ["persist.sys.miui_scout_enable"]="true"
             )
+            COMMENT_OUT_PROPS=(
+            )
             ;;
         "miext")
             PROPERTY_VALUES=(
                 ["ro.product.mod_device"]="rosemary"
+            )
+            COMMENT_OUT_PROPS=(
             )
             ;;
     esac
@@ -483,6 +523,35 @@ run_prop_builder() {
     # Remove previous modifications
     sed -i '/########## Pyro Build Modifications Start ##########/,/########## Pyro Build End ##########/d' "$temp_file"
     
+    # Process properties to comment out and collect them
+    local COMMENTED_LINES=""
+    local commented_count=0
+    
+    for prop in "${COMMENT_OUT_PROPS[@]}"; do
+        # Escape special characters for regex
+        local escaped_prop=$(sed 's/[.]/\\./g' <<< "$prop")
+        
+        # Find and process all matching lines
+        while IFS= read -r line; do
+            # Skip empty lines
+            [[ -z "$line" ]] && continue
+            
+            # Preserve existing comments or add new
+            if [[ "$line" =~ ^# ]]; then
+                commented_line="$line"
+            else
+                commented_line="# $line"
+            fi
+            
+            # Add to collected lines and remove from original
+            COMMENTED_LINES+="${commented_line}\n"
+            sed -i "/^[[:space:]]*${escaped_prop}=/d" "$temp_file"
+            echo -e "  ${YELLOW}✓ Commented/Moved: $prop${NORMAL}"
+            ((commented_count++))
+            log_message "INFO" "Commented out: $prop"
+        done < <(grep -P "^(#\s*)?${escaped_prop}=" "$temp_file" 2>/dev/null || true)
+    done
+    
     # Process properties
     local modified_count=0
     local added_count=0
@@ -490,32 +559,69 @@ run_prop_builder() {
     # Add barrier
     echo -e "\n########## Pyro Build Modifications Start ##########\n" >> "$temp_file"
     
+    # Add commented out properties section if any exist
+    if [[ -n "$COMMENTED_LINES" ]]; then
+        echo -e "# Removed Properties:\n" >> "$temp_file"
+        echo -e "$COMMENTED_LINES" >> "$temp_file"
+    fi
+    
+    # Initialize categorization arrays
+    local MODIFIED_PROPERTIES=()
+    local ADDED_PROPERTIES=()
+    local UNMODIFIED_PROPERTIES=()
+    
     # Process all properties
     for prop_name in "${!PROPERTY_VALUES[@]}"; do
         local new_value="${PROPERTY_VALUES[$prop_name]}"
         
-        # Remove existing instances
+        # Remove existing instances (if not already removed by comment out process)
         sed -i "/^#*[[:space:]]*${prop_name}=/d" "$temp_file"
         
         if [[ -n "${ORIGINAL_VALUES[$prop_name]}" ]]; then
             local original_value="${ORIGINAL_VALUES[$prop_name]}"
             if [[ "$new_value" != "$original_value" ]]; then
-                echo "$prop_name=$new_value    # Was: ${original_value}" >> "$temp_file"
-                echo -e "  ${GREEN}✓ Modified: $prop_name${NORMAL}"
+                MODIFIED_PROPERTIES+=("$prop_name=$new_value|$original_value")
                 ((modified_count++))
-                log_message "INFO" "Modified: $prop_name=$new_value (was: ${original_value})"
             else
-                echo "$prop_name=$new_value" >> "$temp_file"
-                echo -e "  ${YELLOW}✓ Maintained: $prop_name${NORMAL}"
-                log_message "INFO" "Maintained: $prop_name=$new_value"
+                UNMODIFIED_PROPERTIES+=("$prop_name=$new_value")
             fi
         else
-            echo "$prop_name=$new_value" >> "$temp_file"
-            echo -e "  ${BLUE}✓ Added: $prop_name${NORMAL}"
+            ADDED_PROPERTIES+=("$prop_name=$new_value")
             ((added_count++))
-            log_message "INFO" "Added: $prop_name=$new_value"
         fi
     done
+    
+    # Add Modified Properties Section
+    if [[ ${#MODIFIED_PROPERTIES[@]} -gt 0 ]]; then
+        echo -e "\n# Modified Properties:\n" >> "$temp_file"
+        for entry in "${MODIFIED_PROPERTIES[@]}"; do
+            IFS='|' read -r prop_entry original_value <<< "$entry"
+            prop_name="${prop_entry%%=*}"
+            echo "$prop_entry    # Was: ${original_value}" >> "$temp_file"
+            echo -e "  ${GREEN}✓ Modified: ${prop_entry} (was: '${original_value}')${NORMAL}"
+            log_message "INFO" "Modified: $prop_entry (was: ${original_value})"
+        done
+    fi
+    
+    # Add Added Properties Section
+    if [[ ${#ADDED_PROPERTIES[@]} -gt 0 ]]; then
+        echo -e "\n# Added Properties:\n" >> "$temp_file"
+        for prop_entry in "${ADDED_PROPERTIES[@]}"; do
+            echo "$prop_entry" >> "$temp_file"
+            echo -e "  ${BLUE}✓ Added: $prop_entry${NORMAL}"
+            log_message "INFO" "Added: $prop_entry"
+        done
+    fi
+    
+    # Add Unmodified Properties Section
+    if [[ ${#UNMODIFIED_PROPERTIES[@]} -gt 0 ]]; then
+        echo -e "\n# Unmodified Properties (explicitly maintained):\n" >> "$temp_file"
+        for prop_entry in "${UNMODIFIED_PROPERTIES[@]}"; do
+            echo "$prop_entry" >> "$temp_file"
+            echo -e "  ${YELLOW}✓ Maintained: $prop_entry${NORMAL}"
+            log_message "INFO" "Maintained: $prop_entry"
+        done
+    fi
     
     echo -e "########## Pyro Build End ##########" >> "$temp_file"
     
@@ -527,9 +633,9 @@ run_prop_builder() {
     chmod "$permissions" "$build_prop"
     chown "$owner" "$build_prop"
     
-    echo -e "${GREEN}✅ ${prop_type^} properties updated! Modified: $modified_count, Added: $added_count${NORMAL}"
+    echo -e "${GREEN}✅ ${prop_type^} properties updated! Modified: $modified_count, Added: $added_count, Commented: $commented_count${NORMAL}"
     echo -e "  ${CYAN}📦 Backup saved: $backup_file${NORMAL}\n"
-    log_message "INFO" "Pyro_${prop_type}_prop_builder completed successfully. Modified: $modified_count, Added: $added_count"
+    log_message "INFO" "Pyro_${prop_type}_prop_builder completed successfully. Modified: $modified_count, Added: $added_count, Commented: $commented_count"
 }
 
 run_copier() {
