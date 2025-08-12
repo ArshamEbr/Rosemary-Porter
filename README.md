@@ -51,6 +51,7 @@ your stock rom `firmware` files also extracted inside `output/fw` if you want to
 - Contributions, bug reports, and feature requests are welcome.
 - For direct contact, find me on Telegram: @ArshamEbr.
 - Everything will be cleaned except the `port`, `stock`, and `output` folders to preserve free space.
+- This script is universal and compatible with all Xiaomi phones.
 - Good luck! Happy porting 🎉
 
 ---
