@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+dir_loop="$local_dir/$a"
+
+if [ -z "$(mount | cut -d" " -f3 | grep "$dir_loop$")" ]; then
+
+  mkdir "$dir_loop" 2>/dev/null
+  sudo mount -t ext4 -o rw,loop "$file" "$dir_loop" 2>/dev/null
+  if [ "$?" -eq "0" ]; then
+    echo
+    echo "     $file $mount_in_folder: $dir_loop"
+    echo
+  else
+
+    loop="$()"
+    i="$(echo "$loop" | awk -F"loop" '{ print $2 }')"
+    [ -e /dev/block/loop1 ] && minor=$(ls -l /dev/block/loop1 | awk '{ print $6 }')
+    mknod $loop b 7 $((i + minor)) 2>/dev/null
+
+    losetup $loop "$a".img 2>/dev/null
+
+    mount -t ext4 -o loop,noatime $loop "$dir_loop"
+    if [ "$?" -eq "0" ]; then
+      echo
+      echo "     $file $mount_in_folder: $dir_loop"
+      echo
+    else
+      echo
+      echo ".....$mount_error"
+      echo
+      losetup -d $loop
+    fi
+  fi
+else
+  echo
+  echo ".....$folder_already_mounted $dir_loop"
+  echo
+fi

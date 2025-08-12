@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+clear
+#cd /data/local/UnpackerSystem
+pack_d="$pack_d"
+
+. $binary_dir/pack_img
+
+#----------------------------finish pack
+
+if test -s "$outdir"/"$pack_d".new.img; then
+
+    mv_dat() {
+        test -s "$outdir"/"$pack_d".new.new.dat && mv -f "$outdir"/"$pack_d".new.new.dat "$outdir"/"$pack_d".new.dat
+        test -f "$outdir"/"$pack_d".new.patch.dat && mv -f "$outdir"/"$pack_d".new.patch.dat "$outdir"/"$pack_d".patch.dat
+        test -s "$outdir"/"$pack_d".new.transfer.list && mv -f "$outdir"/"$pack_d".new.transfer.list "$outdir"/"$pack_d".transfer.list
+    }
+
+    b="python3 $binary_dir/bin_system/img2sdat-master/img2sdat5.py "$outdir"/"$pack_d".new.img $outdir"
+    if [ -d ./"$pack_d" ]; then
+        #a=$(awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/build.prop 2> /dev/null)
+
+        #a1=$(awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/"$pack_d"/build.prop 2> /dev/null)
+        #if [ -z "$a" ]; then
+        #a="$a1"
+        #else
+        #a="$a"
+        #fi
+
+        a=$(awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/system/build.prop 2>/dev/null) || a=$(awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/system/build.prop 2>/dev/null)
+
+        g=$(grep 'ro.build.version.sdk=.*.' $local_dir/UnpackerSystem/"$pack_d"/system/build.prop | grep -Eo '.{2}$') 2>/dev/null || g=$(grep 'ro.build.version.sdk=.*.' "$pack_d"/system/build.prop | grep -Eo '.{2}$') 2>/dev/null
+        if [ "$g" -ge "24" ]; then
+            echo
+            echo "......$version_found API = $g $android_version: $a"
+            echo
+            echo "......$convert_to .dat..."
+            echo
+            $b 4
+            if [ $(echo $?) -eq 0 ]; then
+                mv_dat
+                echo
+                echo ".....$complete"
+                echo
+                echo ".....$size1 raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
+                echo
+                #echo ".....Удаление "$pack_d".new.img..."
+                rm -f "$outdir"/"$pack_d".new.img
+            #echo
+            else
+                echo
+                echo ".....$convert_error!"
+                echo
+            fi
+
+        elif [ "$g" -eq "21" ]; then
+            echo
+            echo "......$version_found API = $g $android_version: $a"
+            echo
+            echo "......$convert_to .dat..."
+            echo
+            $b 1
+            if [ $(echo $?) -eq 0 ]; then
+                mv_dat
+                echo
+                echo ".....$complete"
+                echo
+                echo ".....$size1 raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
+                echo
+                #echo ".....Удаление "$pack_d".new.img..."
+                rm -f "$outdir"/"$pack_d".new.img
+            #echo
+            else
+                echo
+                echo ".....$convert_error!"
+                echo
+            fi
+
+        elif [ "$g" -eq "22" ]; then
+            echo
+            echo "......$version_found API = $g $android_version: $a"
+            echo
+            echo "......$convert_to .dat..."
+            echo
+            $b 2
+            if [ $(echo $?) -eq 0 ]; then
+                mv_dat
+                echo
+                echo ".....$complete"
+                echo
+                echo ".....$size1 raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
+                echo
+                #echo ".....Удаление "$pack_d".new.img..."
+                rm -f "$outdir"/"$pack_d".new.img
+            #echo
+            else
+                echo
+                echo ".....$convert_error!"
+                echo
+            fi
+
+        elif [ "$g" -eq "23" ]; then
+            echo
+            echo "......$version_found API = $g $android_version: $a"
+            echo
+            echo "......$convert_to .dat..."
+            echo
+            $b 3
+            if [ $(echo $?) -eq 0 ]; then
+                mv_dat
+                echo
+                echo ".....$complete"
+                echo
+                echo ".....$size1 raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
+                echo
+                #echo ".....Удаление "$pack_d".new.img..."
+                rm -f "$outdir"/"$pack_d".new.img
+            #echo
+            else
+                echo
+                echo ".....$convert_error!"
+                echo
+            fi
+
+        else
+            echo ".....$version_not_found SDK."
+            echo
+            echo ".....$enter_number_version_android_for_built:"
+            echo
+            $b
+            if [ $(echo $?) -eq 0 ]; then
+                mv_dat
+                echo
+                echo ".....$complete"
+                echo
+                echo ".....$size1 raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
+                echo
+                #echo ".....Удаление "$pack_d".new.img..."
+                rm -f "$outdir"/"$pack_d".new.img
+            #echo
+            else
+                echo
+                echo ".....$convert_error!"
+                echo
+            fi
+        fi
+    fi
+else
+    echo ".....$no_image \""$pack_d".new.img\" $for_conversion"
+fi
+rm -f $local_dir/python/tmp* tmp*

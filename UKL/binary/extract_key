@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+if [ "$aik_mob" == "1" ]; then
+  out_extract_key=$local_dir/AIK-Linux/split_img
+elif [ "$aik_mob" == "2" ]; then
+  out_extract_key="$dir_avb"/"$r_name"
+  aik_mob="1"
+else
+  out_extract_key=$local_dir/UnpackerSystem/extract_keys
+  mkdir "$out_extract_key" 2>/dev/null
+
+fi
+
+if test -s "$file"; then
+  if test ! -z "$(python3 $binary_dir/avbtool.py info_image --image "$file" 2>/dev/null | grep -o "Minimum libavb version:")"; then
+    check_alg="$(python3 $binary_dir/avbtool.py info_image --image "$file" 2>/dev/null | awk '/^Algorithm:/ { print $2 }')"
+
+    if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
+      echo
+      echo ".....Algorithm: $check_alg"
+
+      #f_name="$(echo "$file" | awk -F"." '{ print $1 }')"
+
+      r="$(basename $file)"
+      f_name=${r%.*}
+
+      #offset_avb="$(bin_utils foffset "$file" "41564230" -1 true)"
+
+      offset_avb="$(python3 $binary_dir/bin_system/find_avb0.py "$file" "41564230" | head -1)"
+
+      if test ! -z "$offset_avb"; then
+
+        size_magic="$(python3 $binary_dir/avbtool.py info_image --image "$file" | awk '/Header Block:/ { print $3 }')"
+
+        size_ayten="$(python3 $binary_dir/avbtool.py info_image --image "$file" | awk '/Authentication Block:/ { print $3 }')"
+
+        xxx="$(expr "$offset_avb" \+ 64)"
+
+        #offset_key="$(printf "%d\n" "0x""$(xxd -ps -s "$xxx" -l 8 "$file")")"
+
+        #offset_key="$(printf "%d\n" "0x""$(hexdump -C -s "$xxx" -n 8 "$file" | awk 'NR==1 { print $2$3$4$5$6$7$8$9 }')")"
+
+        offset_key="$(printf "%d\n" "0x""$(dd if="$file" ibs=1 skip="$xxx" bs=1 count=8 2>/dev/null | xxd -p)")"
+
+        xxx="$(expr "$offset_avb" \+ 72)"
+
+        #size_key="$(printf "%d\n" "0x""$(xxd -ps -s "$xxx" -l 8 "$file")")"
+
+        #size_key="$(printf "%d\n" "0x""$(hexdump -C -s "$xxx" -n 8 "$file" | awk 'NR==1 { print $2$3$4$5$6$7$8$9 }')")"
+
+        size_key="$(printf "%d\n" "0x""$(dd if="$file" ibs=1 skip="$xxx" bs=1 count=8 2>/dev/null | xxd -p)")"
+
+        real_offset_key="$(expr "$offset_avb" \+ "$size_magic" \+ "$size_ayten" \+ "$offset_key")"
+
+        #xxd -ps -s "$real_offset_key" -l "$size_key" "$file" | xxd -r -ps > "$out_extract_key"/"$f_name"_pubkey.pem
+
+        dd if="$file" ibs=1 skip="$real_offset_key" of="$out_extract_key"/"$f_name"_pubkey.pem bs=1 count="$size_key" &>/dev/null
+
+        if [ $(echo $?) -eq 0 -a -s "$out_extract_key"/"$f_name"_pubkey.pem ]; then
+          if [ "$aik_mob" != "1" ]; then
+            echo
+            echo ".....$key_successfully_extracted!"
+            echo ".....$saved: "$out_extract_key"/"$f_name"_pubkey.pem"
+            sha_sum="$(sha1sum "$out_extract_key"/"$f_name"_pubkey.pem | awk '{ print $1 }')"
+            echo ".....sha1:  $sha_sum"
+            echo
+          else
+            #echo
+            sha_sum="$(sha1sum "$out_extract_key"/"$f_name"_pubkey.pem | awk '{ print $1 }')"
+            echo ".....sha1 public key:  $sha_sum"
+            echo
+          fi
+        else
+          echo ".....$key_extraction_error!"
+          echo
+        fi
+      else
+        echo
+        echo ".....$error_not_found offset AVB0"
+        echo
+      fi
+    else
+      if test "$aik_mob" != "1"; then
+        echo
+        echo ".....$f_i_l_e /$nd/$file $not_signed!"
+        echo
+      fi
+    fi
+  else
+    r="$(realpath "$file")"
+    echo
+    echo ".....$f_i_l_e $r $has_no_structure AVB"
+    echo
+  fi
+else
+  echo
+  echo ".....$no_file_to_process!"
+  echo
+fi
+
+unset xxx
+unset aik_mob

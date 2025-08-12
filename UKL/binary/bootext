@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+dirboot="$local_dir/UnpackerContexts"
+dirbin="$local_dir/binary/bin_contexts"
+file="file_contexts"
+file_b="file_contexts.bin"
+workdir="./unpack_boot"
+cd ${dirboot}
+for f in $(find . -maxdepth 1 -name '*.img'); do
+  if [ ! -z "$(hexdump -C -n 256 $f | grep 'BFBF')" ]; then
+    echo
+    echo .....Найден образ с Fb-обёрткой: $f
+    echo
+    echo .....Конвертация...
+    mkdir ./Fb_boot_orig 2>/dev/null
+    cp $f ./Fb_boot_orig
+    dd if=$f of=./boot.new.img bs=$(($(echo "0x$(hexdump -C $f | awk '/ANDROID!/ { print $1 }')"))) skip=1
+    rm -f $f
+    mv ./boot.new.img ./boot.img
+    echo .....Получен: boot.img без Fb-обёртки!
+    echo
+  else
+    echo
+    echo ..... $f - не является Fb-образом.
+    echo
+  fi
+done
+
+if [ ! -f ./boot*.img ]; then
+  echo
+  echo .....В рабочей папке не найден boot.img.
+  echo
+else
+  if [ -z "$(hexdump -C -n 4 ./boot*.img | grep '24 4f 53 24')" ]; then
+    echo .....Извлечение...
+    echo
+    mkdir ${workdir}
+    ${dirbin}/libboot unpackbootimg -i ./boot*.img -o ${workdir}
+    ${dirbin}/libboot minigzip -d ${workdir}/ramdisk.cpio.gz
+    cd ${workdir}
+    ${dirbin}/libboot uncpio -c ramdisk.cpio -o ramdisk
+    cd ./ramdisk
+    if [ -f "${file_b}" -o -f "${file}" ]; then
+      echo
+      cp -fv ./${file_b} ./${file} ${dirboot} 2>/dev/null | awk -F"'" '{ print ".....Получен файл:"" "substr($2,3)"!" }'
+
+    elif [ -f ./nonplat_${file} -a -f ./plat_${file} ]; then
+      cat ./nonplat_${file} ./plat_${file} >${dirboot}/${file}
+      echo
+      echo .....Файл получен!
+    else
+      echo
+      echo .....В boot.img не найден file_contexts.
+    fi
+  else
+    echo .....Найден boot.img от intel.
+    mkdir -p ./work/ramdisk-unpack 2>/dev/null
+    cd ./work
+    ${dirbin}/unpack_intel ../boot*.img ./zlmage ./ramdisk.cpio.gz
+    cd ./ramdisk-unpack
+    gunzip -c ../ramdisk.cpio.gz | cpio -i 2>/dev/null
+    echo
+    cp -fv ./${file_b} ./${file} ${dirboot} 2>/dev/null | awk -F"'" '{ print ".....Получен файл:"" "substr($2,3)"!" }'
+    echo
+    rm -rf ../../work
+  fi
+fi
+cd ${dirboot}
+rm -rf ${workdir}
+
+if [ -f ./${file_b} ]; then
+  echo
+  echo .....Конвертация file_contexts.bin.
+  echo
+  if [ ! -z "$(hexdump -C -n 4 ./${file_b} | grep '8a ff 7c f9')" ]; then
+    sefparse ./${file_b} 2>/dev/null
+    echo
+    echo .....Получен file_contexts!.....
+    echo
+  else
+    echo .....file_contexts.bin является текстовым и конвертация не требуется.
+    echo
+  fi
+else
+  echo
+  echo .....Нет файла, требующего конвертации.
+  echo
+fi

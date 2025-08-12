@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+size_output_raw() {
+  ch_ext="$(hexdump -C -n 2000 "$file" | awk '/00000430/ { print $10$11 }' | grep "53ef")"
+  if test -s "$file"; then
+    size_out="$(stat -c %s "$file")"
+    if [ ! -z "$ch_ext" ]; then
+      size_free="$(expr "$($binary_dir/tune2fs -l "$file" 2>/dev/null | awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024 2>/dev/null)"
+      echo
+      echo ".....$size1 raw == $size_out $byte"
+      echo ".....$free_space: $size_free mb"
+      echo
+    else
+      echo
+      echo ".....$size1 raw == $size_out $byte"
+      echo
+    fi
+  fi
+  return
+}
+
+r="$(basename $file)"
+r_name=${r%.*}
+
+if [ -f ./"$file" ]; then
+  if [ -z "$(hexdump -C -n 4 ./"$file" | grep '3a ff 26 ed')" ]; then
+    echo
+    echo ".....$converting..."
+    echo
+    $binary_dir/img2simg ./"$file" ./"$r_name".sparse.img
+
+    if [ $(echo $?) -eq 0 ]; then
+      echo
+      echo ".....$received_image sparse: \""$r_name".sparse.img\"!"
+      size_output_raw
+      echo
+    else
+      echo
+      echo ".....$convert_error!"
+      echo
+    fi
+  else
+    echo
+    echo ".....$image_is_already sparse."
+    echo
+  fi
+else
+  echo
+  echo ".....$no_image_in_folder "$file"."
+  echo
+fi

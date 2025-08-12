@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#loop=$(mount | grep "$file" | cut -d" " -f1)
+
+loop=$(mount | cut -d" " -f1,3 | grep "$file$" | cut -d" " -f1)
+loop_d=$(mount | cut -d" " -f3 | grep "$file$")
+echo
+echo ".....$unmounting $file..."
+echo
+if [ ! -z "$loop_d" ]; then
+
+  pid_term="$(cat /proc/$$/status | awk '/^PPid:/ { print $2 }')"
+  fuser -vm "$loop_d" &>$binary_dir/fuser.txt
+
+  check_pid="$(cat $binary_dir/fuser.txt | grep -o "$pid_term")"
+  if [ -z "$check_pid" ]; then
+
+    fuser -skm "$loop_d"
+    sudo umount "$loop_d"
+    if [ "$?" -eq 0 ]; then
+      losetup -d "$loop" 2>/dev/null
+      rm -rf "$loop_d"
+
+      echo ".....$successfully_unmounted: $loop_d"
+      echo
+    else
+      echo
+      echo ".....$unmount_error!"
+    fi
+  else
+    echo
+    echo ".....$unmount_error!"
+    echo
+
+    echo ".....$shut_down_uka"
+    echo
+  fi
+else
+  echo
+  echo ".....$folder_not_mounted!"
+  echo
+fi
+
+rm -f $binary_dir/fuser.txt

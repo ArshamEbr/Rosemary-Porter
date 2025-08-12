@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+err() {
+  echo ""
+  echo "$local_dir/python/sdat2img.py - for android"
+  echo ""
+  echo "Usage: go to the folder [path][dir] where the <system.new.dat> and <system.transfer.list> is located.
+
+ cd [path][dir]
+ $local_dir/python/sdat2img.py <system_transfer_list> <system_new_file> <system_img>"
+  echo ""
+}
+
+if [ "$1" = "" ]; then
+  err
+  exit
+elif [ "$2" = "" ]; then
+  err
+  exit
+elif [ "$3" = "" ]; then
+  err
+  exit
+fi
+
+python3 $local_dir/python/sdat2img.py "$1" "$2" "$3"

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+size_output_raw() {
+  ch_ext="$(hexdump -C -n 2000 "$r_name".raw.img | awk '/00000430/ { print $10$11 }' | grep "53ef")"
+  if test -s "$r_name".raw.img; then
+    size_out="$(stat -c %s "$r_name".raw.img)"
+    if [ ! -z "$ch_ext" ]; then
+      size_free="$(expr "$($binary_dir/tune2fs -l "$r_name".raw.img | awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024)"
+      echo ".....$size1 raw == $size_out $byte"
+      echo ".....$free_space: $size_free mb"
+      echo
+    else
+      echo ".....$size1 raw == $size_out $byte"
+      echo
+    fi
+  fi
+  return
+}
+
+#r_name=$(echo $file | sed 's!.*\/!!' | awk -F"-|_|[+]|[.]|[{]|[(]" '{ print $1 }')
+
+r="$(basename $file)"
+r_name=${r%.*}
+
+if [ -f ./"$file" ]; then
+  if [ ! -z "$(hexdump -C -n 4 ./"$file" | grep '3a ff 26 ed')" ]; then
+    echo
+    echo ".....$converting..."
+    echo
+    $binary_dir/simg2img ./"$file" ./"$r_name".raw.img
+    if [ $(echo $?) -eq 0 ]; then
+      echo ".....$received_image raw: \""$r_name".raw.img\"!"
+      size_output_raw
+      echo
+    else
+      echo
+      echo ".....$convert_error!"
+      echo
+    fi
+  else
+    echo
+    echo ".....$image_is_already"
+    echo
+  fi
+else
+  echo
+  echo ".....$no_image_in_folder "$file"."
+  echo
+fi

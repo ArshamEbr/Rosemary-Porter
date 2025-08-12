@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+dat_name=$(echo $file | sed 's!.*\/!!' | awk -F".new.dat" '{ print $1 }')
+
+if test -s ./"$dat_name".transfer.list; then
+  echo
+  echo ".....$converting $file..."
+  echo
+  python3 $local_dir/python/sdat2img.py "$dat_name".transfer.list "$dat_name".new.dat /"$ndd"/"$dat_name".img
+  if [ $(echo $?) -eq 0 ]; then
+    file="$ndd"/"$dat_name".img
+    nd="$ndd"
+    . $binary_dir/unpack_img
+  else
+    echo
+    echo ".....$convert_error $file"
+    echo
+  fi
+else
+  echo
+  echo ".....$file_not_found "$dat_name".transfer.list."
+fi

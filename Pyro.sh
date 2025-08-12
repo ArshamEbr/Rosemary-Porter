@@ -1,4 +1,4 @@
-#!/run/current-system/sw/bin/bash
+#!/usr/bin/env bash
 
 # PyroOS Combined Script
 # Combines all Pyro modification scripts with interactive menu system
@@ -10,7 +10,7 @@ BASE_DIR="UKL/UnpackerSystem"
 SUPER_SOURCE_DIR="UKL/UnpackerSystem"
 SUPER_TARGET_DIR="UKL/UnpackerSuper"
 OUTPUT_DIR="output"
-LOG_FILE="pyro_$(date +%Y%m%d_%H%M%S).log"
+LOG_FILE="pyro_boom_$(date +%Y%m%d_%H%M%S).log"
 
 # Colors and formatting
 RED='\033[0;31m'
@@ -31,54 +31,56 @@ declare -A SCRIPTS=(
     [5]="Pyro_miext_prop_builder|Modify mi_ext build properties"
     [6]="Pyro_system_prop_builder|Modify system build properties"
     [7]="Pyro_system_ext_prop_builder|Modify system_ext build properties"
-    [8]="Pyro_super_packer|Build sparse super image from partitions"
+    [8]="Pyro_file_appender|Append custom lines to specific files"
+    [9]="Pyro_file_remover|Remove specific files and folders"
+    [10]="Pyro_vendor_prop_builder|Modify vendor build properties"
+    [11]="Pyro_super_packer|Build sparse super image from partitions"
 )
 
 # Function definitions
 print_header() {
     clear
-    echo -e "${PURPLE}${BOLD}"
-    echo "╔═══════════════════════════════════════════════════════════════════════════════╗"
-    echo "║                                                                               ║"
-    echo "║           ██████╗ ██╗   ██╗██████╗  ██████╗       ██████╗ ███████╗            ║"
-    echo "║           ██╔══██╗╚██╗ ██╔╝██╔══██╗██╔═══██╗     ██╔═══██╗██╔════╝            ║"
-    echo "║           ██████╔╝ ╚████╔╝ ██████╔╝██║   ██║     ██║   ██║███████╗            ║"
-    echo "║           ██╔═══╝   ╚██╔╝  ██╔══██╗██║   ██║     ██║   ██║╚════██║            ║"
-    echo "║           ██║        ██║   ██║  ██║╚██████╔╝     ╚██████╔╝███████║            ║"
-    echo "║           ╚═╝        ╚═╝   ╚═╝  ╚═╝ ╚═════╝       ╚═════╝ ╚══════╝            ║"
-    echo "║                                                                               ║"
-    echo "║                         🔥 B U I L D   S U I T E 🔥                           ║"
-    echo "║                                 Script v1.1                                   ║"
-    echo "║                                                                               ║"
-    echo "╠═══════════════════════════════════════════════════════════════════════════════╣"
-    echo "║                                                                               ║"
-    echo "║                                💎 CREDITS 💎                                  ║"
-    echo "║                                                                               ║"
-    echo "║    🚀 @ArshamEbr     - Creator of the automation script                       ║"
-    echo "║    📚 @NEESCHAL_3    - A friend who guided me in learning about ROMs          ║"
-    echo "║    🌟 @PapaAlpha32   - the person who started my first ROM porting journey    ║"
-    echo "║                                                                               ║"
-    echo "║                      Special thanks to the community! 🙏                      ║"
-    echo "║                                                                               ║"
-    echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
-    echo -e "${NORMAL}"
-    
-    # Show splash screen for 2 seconds
-    sleep 2
-    
-    echo -e "${CYAN}Base Directory: ${BOLD}$BASE_DIR${NORMAL}"
-    echo -e "${CYAN}Super Target: ${BOLD}$SUPER_TARGET_DIR${NORMAL}"
-    echo -e "${CYAN}Output Directory: ${BOLD}$OUTPUT_DIR${NORMAL}"
-    echo -e "${CYAN}Log File: ${BOLD}$LOG_FILE${NORMAL}\n"
+
+    # Truecolor fiery gradient
+    RED="\033[38;2;255;80;80m"
+    ORANGE="\033[38;2;255;140;0m"
+    YELLOW="\033[38;2;255;215;0m"
+    CYAN="\033[38;2;100;200;255m"
+    RESET="\033[0m"
+    BOLD="\033[1m"
+
+    echo -e "${RED}${BOLD}"
+    echo -e "${RED}   ██████╗ ██╗   ██╗██████╗  ██████╗     ${RESET} ██████╗ ███████╗"
+    echo -e "${RED}   ██╔══██╗╚██╗ ██╔╝██╔══██╗██╔═══██╗    ${RESET}██╔═══██╗██╔════╝"
+    echo -e "${RED}   ██████╔╝ ╚████╔╝ ██████╔╝██║   ██║    ${RESET}██║   ██║███████╗"
+    echo -e "${RED}   ██╔═══╝   ╚██╔╝  ██╔══██╗██║   ██║    ${RESET}██║   ██║╚════██║"
+    echo -e "${RED}   ██║        ██║   ██║  ██║╚██████╔╝    ${RESET}╚██████╔╝███████║"
+    echo -e "${RED}   ╚═╝        ╚═╝   ╚═╝  ╚═╝ ╚═════╝     ${RESET} ╚═════╝ ╚══════╝"${RESET}
+    echo -e "╔════════════════════════════════════════════════════════════════════════╗"${RESET} 
+    echo -e "║${YELLOW}  🔥 PyroOS   |   Build Suite v2.0${RESET}                                      ║"
+    echo -e "╠════════════════════════════════════════════════════════════════════════╣"${RESET} 
+    echo -e "║${CYAN}${BOLD} 💎 Credits${RESET}                                                             ║"
+    echo -e "║  ${BOLD} 🚀 @ArshamEbr         - ${RESET}Creator of the automation script             ║"
+    echo -e "║  ${BOLD} 📚 @NEESCHAL_3        - ${RESET}Guided me in ROM knowledge                   ║"
+    echo -e "║  ${BOLD} 📚 @fahimfaisaladitto - ${RESET}Gave the idea to make it more user-friendly  ║"
+    echo -e "║  ${BOLD} 🌟 @PapaAlpha32       - ${RESET}Started my ROM porting journey               ║"
+    echo -e "╚════════════════════════════════════════════════════════════════════════╝${RESET}"
+
+    sleep 1
+
+    echo -e "${CYAN}${BOLD}📂 Base Directory:   ${RESET}$BASE_DIR"
+    echo -e "${CYAN}${BOLD}📦 Super Target:     ${RESET}$SUPER_TARGET_DIR"
+    echo -e "${CYAN}${BOLD}📤 Output Directory: ${RESET}$OUTPUT_DIR"
+    echo -e "${CYAN}${BOLD}📝 Log File:         ${RESET}$LOG_FILE\n"
 }
 
 print_menu() {
     echo -e "${BOLD}${BLUE}Available Scripts:${NORMAL}"
     echo -e "${BLUE}────────────────────────────────────────────────────────────${NORMAL}"
     
-    for i in {1..8}; do
+    for i in {1..11}; do
         IFS='|' read -r script_name description <<< "${SCRIPTS[$i]}"
-        echo -e "  ${YELLOW}[$i]${NORMAL} ${BOLD}$script_name${NORMAL}"
+        echo -e "  ${RED}[$i]${NORMAL} ${BOLD}$script_name${NORMAL}"
         echo -e "      ${description}"
     done
     
@@ -129,7 +131,7 @@ log_message() {
 }
 
 run_debloater() {
-    echo -e "${BOLD}${CYAN}[1/7] Running Pyro Debloater...${NORMAL}"
+    echo -e "${BOLD}${CYAN}[1/9] Running Pyro Debloater...${NORMAL}"
     log_message "INFO" "Starting Pyro_debloater"
     
     # Debloater configuration
@@ -164,7 +166,7 @@ run_debloater() {
         "MIGalleryLockscreen-MIUI15" "MiBugReport" "LogManager"
         "MiuiContentCatcherMIUI15" "MIUITouchAssistant" "MIUIGuardProvider"
         "SystemHelper" "XMDualCameraCaliO16" "MIUIPersonalAssistantPhoneO16"
-        "MiLauncherGlobal" "MIUICloudBackup" "MiGameCenterSDKService"
+        "MIUICloudBackup" "MiGameCenterSDKService"
         "MIRadioGlobal" "MiuiBiometric33148" "MiuiBugReportGlobal" "GoogleNews"
         "MiGalleryLockScreenGlobal" "Podcasts" "Turbo" "cit" "SettingsIntelligence"
         "PrivateComputeServices" "Longcheer_GFTest" "Longcheer_SensorTestTool"
@@ -204,7 +206,7 @@ run_debloater() {
         "iFlytekIME" "SmartHome" "OS2VipAccount" "MiShop" "MIpay" "MIUIYoupin"
         "MIUIXiaoAiSpeechEngine" "MIUIVirtualSim" "MIUIMusicT" "MIUIMiDrive"
         "MIUIHuanji" "MIUIGameCenter" "MIUIEmail" "MIUIDuokanReader"
-        "MIUICleanMaster" "Health" "BaiduIME" "DownloadProviderUI" "MIService"
+        "MIUICleanMaster" "Health" "BaiduIME" "DownloadProviderUI" "MiService"
         "MiGalleryLockScreenGlobalOs020" "MIUINotes" "MiuiScanner" "IFAAService"
         "CalendarGoogle" "GameCenterGlobal" "GoogleContacts" "GoogleOne_arm64"
         "MIUIMiPicks" "PaymentService_Global" "SoterService" "GlobalWPSLITE"
@@ -215,8 +217,14 @@ run_debloater() {
         "com.altice.android.myapps" "com.dti.telefonica" "MIUIEsimLPA"
         "com.sfr.android.sfrjeux" "MIUIGlobalMinusScreenWidget"
         "MIUIYellowPageGlobal" "CotaService" "OrangeManualSelector"
-        "CrossDeviceServices" "AppEnabler" "AppSelector"
+        "CrossDeviceServices" "AppEnabler" "AppSelector" "Joyose" "WMService"
+        "MIUIPersonalAssistantPhoneMIUI15" "MIUIMirror" "system"
+        "XiaoaiEdgeEngine" "MITSMClient" "MaintenanceMode" "MetokNLP"
+        "MIUIVpnSdkManager" "GoogleFeedback" "dtag-appenabler" "GFManagerForCit"
+        "GFTestForCit" "LCCit" "MIBrowserGlobal_removable"
     )
+# "AndroidSystemIntelligence_Infrastructure" NO
+# "MiLauncherGlobal" NO for POCO
 
     local removed_count=0
     for TARGET_DIR in "${TARGET_DIRS[@]}"; do
@@ -243,6 +251,18 @@ run_debloater() {
 
     echo -e "${GREEN}✅ Debloater complete! Removed $removed_count items.${NORMAL}\n"
     log_message "INFO" "Pyro_debloater completed successfully. Removed $removed_count items."
+}
+
+print_status() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
 }
 
 run_prop_builder() {
@@ -302,7 +322,7 @@ run_prop_builder() {
                 ["ro.miui.product.home"]="com.miui.home"
                 ["ro.build.characteristics"]="default"
                 ["persist.sys.disable_bganimate"]="false"
-                ["ro.product.product.name"]="rosemary"
+                ["ro.product.product.name"]="${DEVICE_CODENAME:-rosemary}"
                 ["persist.miui.extm.enable"]="0"
                 ["persist.sys.mms.bg_apps_limit"]="96"
                 ["persist.sys.use_boot_compact"]="true"
@@ -400,12 +420,12 @@ run_prop_builder() {
                 ["persist.vendor.sys.pq.shp.step"]="0"
                 ["persist.vendor.sys.pq.dispshp.strength"]="0"
                 ["persist.vendor.sys.pq.ultrares.strength"]="0"
-                ["ro.product.mod_device"]="rosemary"
+                ["ro.product.mod_device"]="${DEVICE_CODENAME:-rosemary}"
                 ["persist.sys.app_dexfile_preload.enable"]="false"
                 ["persist.sys.usap_pool_enabled"]="false"
                 ["persist.sys.dynamic_usap_enabled"]="false"
                 ["persist.sys.spc.proc_restart_enable"]="false"
-                ["persist.sys.preload.enable"]="false"
+                ["persist.sys.preload.enable"]="true" # not sure
                 ["persist.sys.precache.enable"]="false"
                 ["persist.sys.prestart.proc"]="false"
                 ["persist.sys.prestart.feedback.enable"]="false"
@@ -446,6 +466,7 @@ run_prop_builder() {
                 "persist.sys.precache.appstrs2"
                 "persist.sys.precache.appstrs1"
                 "ro.config.low_ram.threshold_gb"
+                "persist.sys.adoptable"
             )
             ;;
         "system")
@@ -456,6 +477,15 @@ run_prop_builder() {
                 ["ro.mtk_perf_response_time"]="1"
                 ["ro.vendor.mtk_omacp_support"]="1"
                 ["ro.surface_flinger.game_default_frame_rate_override"]="60"
+                ####################################
+            #    ["ro.product.brand"]="Redmi"
+                ## ## ## ## ##
+                ["ro.boot.verifiedbootstate"]="green"
+                ["vendor.boot.verifiedbootstate"]="green"
+                ["vendor.boot.vbmeta.device_state"]="locked"
+                ["ro.boot.veritymode"]="enforcing"
+                ["ro.boot.vbmeta.device_state"]="locked"
+                ["ro.boot.flash.locked"]="1"
             )
             COMMENT_OUT_PROPS=(
             )
@@ -470,9 +500,190 @@ run_prop_builder() {
             ;;
         "miext")
             PROPERTY_VALUES=(
-                ["ro.product.mod_device"]="rosemary"
+                ["ro.product.mod_device"]="${DEVICE_CODENAME:-rosemary}"
             )
             COMMENT_OUT_PROPS=(
+                "ro.microsoft.onedrive_partner_code"
+            )
+            ;;
+        "vendor")
+            PROPERTY_VALUES=( # DEVICE RELATED!
+                # Enable Vulkan rendering for better GPU performance
+                ["ro.hwui.use_vulkan"]="1"
+                
+            #    ["ro.product.vendor.brand"]="Redmi"
+                
+                # certain props by kashi
+                ["ro.surface_flinger.use_color_management"]="true"
+                ["ro.surface_flinger.protected_contents"]="true"
+                ["ro.surface_flinger.use_content_detection_for_refresh_rate"]="true"
+                ["ro.surface_flinger.set_touch_timer_ms"]="200"
+                ["ro.surface_flinger.force_hwc_copy_for_virtual_displays"]="true"
+                ["ro.surface_flinger.max_frame_buffer_acquired_buffers"]="3" # can be 4
+                ["ro.surface_flinger.max_virtual_display_dimension"]="4096"
+                ["ro.surface_flinger.supports_background_blur"]="1"
+                ["ro.surface_flinger.has_wide_color_display"]="true"
+                ["ro.surface_flinger.has_HDR_display"]="true"
+                ["ro.surface_flinger.wcg_composition_dataspace"]="143261696"
+                ["ro.surface_flinger.enable_frame_rate_override"]="false"
+                
+                ["persist.sys.miui_animator_sched.bigcores"]="6-7"
+                ["persist.sys.miui_animator_sched.sched_threads"]="2"
+                ["persist.sys.miui.sf_cores"]="4-7"
+                ["persist.sys.miui_animator_sched.big_prime_cores"]="6-7"
+                ["persist.sys.enable_templimit"]="true"
+                ["persist.vendor.display.miui.composer_boost"]="4-7"
+                ["persist.sys.smartpower.intercept.enable"]="true"
+                ["persist.sys.miui_sptm.enable"]="true"
+                ["persist.sys.miui_sptm.enable_pl_type"]="3"
+                ["persist.sys.preload.enable"]="true"
+                ["persist.sys.minfree_def"]="73728,92160,110592,154832,482560,579072"
+                ["persist.sys.minfree_6g"]="73728,92160,110592,258048,663552,903168"
+                ["persist.sys.minfree_8g"]="73728,92160,110592,387072,1105920,1451520"
+                
+                # Force GPU rendering for 2D operations (reduces CPU load)
+                ["debug.sf.hw"]="1"
+                ["persist.sys.ui.hw"]="1"
+                
+                # Disable debugging for SurfaceFlinger (improves UI rendering)
+                ["debug.sf.enable_gl_backpressure"]="0"
+                
+                # Increase JIT cache size for faster app launches
+                ["dalvik.vm.jit.codecachesize"]="64"
+                
+                # Disable kernel error checking (reduces overhead)
+                ["ro.kernel.android.checkjni"]="0"
+                ["ro.kernel.checkjni"]="0"
+                
+                # Enable GPU acceleration for UI transitions
+                ["debug.sf.enable_hwc_vds"]="1"
+                
+                # Optimize SurfaceFlinger for smoother animations
+                ["debug.sf.latch_unsignaled"]="1"
+                ["ro.surface_flinger.max_frame_buffer_acquired_buffers"]="3"
+                
+                # Reduce background process limit to save battery
+                ["ro.sys.fw.bg_apps_limit"]="16"
+                
+                # Enable aggressive doze mode for better standby battery life
+                ["ro.config.hw_power_saving"]="1"
+                ["ro.config.hw_fast_dormancy"]="1"
+                
+                # Disable unnecessary logging (reduces CPU and I/O overhead)
+                ["persist.log.tag"]="W"
+                ["persist.log.tag.ImsService"]="W"
+                ["persist.log.tag.RIL"]="W"
+                ["persist.log.tag.RfxMainThread"]="W"
+                ["persist.log.tag.RILC"]="W"
+                
+                # Optimize Wi-Fi and Bluetooth for power efficiency
+                ["wifi.supplicant_scan_interval"]="180"
+                ["ro.ril.disable.power.collapse"]="0"
+                ["persist.bluetooth.enable_energy_info"]="1"
+                
+                # Reduce CPU usage during idle
+                ["power_supply.wakeup"]="enable"
+                ["ro.ril.power_collapse"]="1"
+                
+                # Disable animation scaling (reduces GPU/CPU load)
+                ["persist.sys.disable.animations"]="1"
+                
+                # Optimize CPU governor for better battery life
+                ["persist.sys.cpu.gov"]="interactive"
+                ["persist.sys.cpu.gov.tune"]="1"
+                
+                # Optimize Low Memory Killer (LMK) settings
+                ["ro.lmk.thrashing_limit"]="50"
+                
+                # Battery & Charging
+                ["persist.vendor.battery.health"]="1"
+                ["persist.vendor.accelerate.charge"]="1"
+                ["persist.vendor.night.charge"]="1"
+                ["persist.sys.power.default.powermode"]="1"
+                
+                # Audio Enhancements
+                ["ro.vendor.audio.aiasst.support"]="true"
+                ["ro.vendor.audio.sfx.earadj"]="true"
+                ["ro.vendor.audio.sfx.scenario"]="true"
+                ["ro.vendor.audio.scenario.support"]="true"
+                ["ro.vendor.audio.voice.change.support"]="true"
+                ["ro.vendor.audio.surround.support"]="true"
+                ["ro.vendor.audio.vocal.support"]="true"
+                ["ro.vendor.audio.playbackcapture.screen"]="1"
+                ["ro.vendor.audio.sfx.harmankardon"]="1"
+                ["ro.vendor.audio.feature.spatial"]="7"
+                ["ro.vendor.audio.bass.enhancer.enable"]="true"
+                ["ro.vendor.audio.virtualizer.enable"]="true"
+                ["ro.vendor.audio.volume.modeler.enable"]="true"
+                ["ro.vendor.audio.speaker.surround.boost"]="110"
+                ["ro.vendor.audio.voice.change.youme.support"]="true"
+                ["ro.vendor.audio.voice.volume.boost"]="none"
+                
+                # MediaTek Hardware
+                ["ro.vendor.mtk_pq_support"]="2"
+                
+                # Disable unnecessary MediaTek logging
+                ["persist.log.tag.MtkDct"]="W"
+                ["persist.log.tag.MtkDc"]="W"
+                ["persist.log.tag.MtkDcc"]="W"
+                
+                # Aod
+                ["ro.vendor.sf.detect.aod.enable"]="true"
+                
+                # Unverified/Device-Specific
+                ["persist.vendor.vcb.enable"]="true"
+                ["persist.vendor.vcb.ability"]="true"
+                ["ro.com.google.ime.theme_dir"]=""
+                ["ro.com.google.ime.theme_file"]=""
+                ["ro.se.type"]="eSE,HCE,UICC"
+                ["ro.vendor.video_box.version"]="2"
+                
+                # PyroOS-Specific
+                ["persist.miui.miperf.enable"]="1"
+                ["persist.sys.enable_miui_booster"]="1"
+                ["debug.game.video.speed"]="1"
+                ["debug.game.video.support"]="1"
+                ["ro.vendor.media.video.frc.support"]="true"
+                ["ro.vendor.media.video.vpp.support"]="true"
+                ["debug.config.media.video.frc.support"]="true"
+                ["debug.config.media.video.aie.support"]="true"
+                ["debug.config.media.video.ais.support"]="true"
+                ["vendor.perf.framepacing.enable"]="true"
+                
+                # Dolby Pro Max
+                ["persist.vendor.audio.misound.disable"]="true"
+                ["ro.vendor.audio.dolby.dax.support"]="true"
+                ["ro.vendor.audio.hifi"]="true"
+                ["ro.vendor.audio.game.mode"]="true"
+                ["ro.vendor.audio.sos"]="true"
+                ["ro.vendor.audio.soundtrigger.mtk.pangaea"]="1"
+                ["ro.vendor.audio.soundtrigger.xiaomievent"]="1"
+                ["ro.vendor.audio.soundtrigger.wakeupword"]="5"
+                ["ro.vendor.audio.soundtrigger.mtk.split_training"]="1"
+                ["ro.vendor.dolby.dax.version"]="DAX3_3.6.0.12_r1"
+                ["ro.vendor.audio.5k"]="true"
+                ["ro.audio.monitorRotation"]="true"
+                ["ro.vendor.audio.dolby.vision.support"]="true"
+                ["ro.vendor.display.dolbyvision.support"]="true"
+                ["debug.config.media.video.dolby_vision_suports"]="true"
+                
+                # PQ Pro Max
+                ["vendor.debug.pq.dshp.en"]="0"
+                ["vendor.debug.pq.shp.en"]="0"
+                ["persist.vendor.sys.pq.iso.shp.en"]="0"
+                ["persist.vendor.sys.pq.ultrares.en"]="0"
+                ["persist.vendor.sys.pq.shp.idx"]="0"
+                ["persist.vendor.sys.pq.shp.strength"]="0"
+                ["persist.vendor.sys.pq.shp.step"]="0"
+                ["persist.vendor.sys.pq.dispshp.strength"]="0"
+                ["persist.vendor.sys.pq.ultrares.strength"]="0"
+            )
+            COMMENT_OUT_PROPS=(
+                # Optimize Dalvik VM for better app performance (slow app install so remove for now)
+                "dalvik.vm.dex2oat-flags" # =--compiler-filter=everything
+                "dalvik.vm.image-dex2oat-flags" # =--compiler-filter=everything
+                "power.saving.mode"
+                "ro.control_privapp_permissions"
             )
             ;;
     esac
@@ -488,7 +699,7 @@ run_prop_builder() {
     # Process fingerprints for product only
     if [[ "$prop_type" == "product" ]]; then
         local fingerprint_pattern="^ro\.product\.build\.fingerprint="
-        local replacement_device="rosemary"
+        local replacement_device="${DEVICE_CODENAME:-rosemary}"
         
         while IFS= read -r line; do
             if [[ "$line" =~ $fingerprint_pattern ]]; then
@@ -639,7 +850,7 @@ run_prop_builder() {
 }
 
 run_copier() {
-    echo -e "${BOLD}${CYAN}[3/7] Running Pyro Copier...${NORMAL}"
+    echo -e "${BOLD}${CYAN}[3/11] Running Pyro Copier...${NORMAL}"
     log_message "INFO" "Starting Pyro_copier"
     
     # Configuration
@@ -651,23 +862,37 @@ run_copier() {
     #    ["/path/to/source/folder3"]="/target/directory4:clear:content"        # Clear target & copy folder contents
     #    ["/path/to/source/folder4"]="/target/directory5:clear:content:valid"  # Create destination if it doesn't exist
 
-        ["product/etc/device_features"]="$BASE_DIR/product_a/etc/device_features:clear:content" # Needed based on variant
-        ["product/etc/displayconfig"]="$BASE_DIR/product_a/etc/displayconfig:clear:content"     # Needed based on variant
+#        ["product/etc/device_features"]="$BASE_DIR/product_a/etc/device_features:clear:content" # Needed based on variant
+#        ["product/etc/displayconfig"]="$BASE_DIR/product_a/etc/displayconfig:clear:content"     # Needed based on variant
+#        ["product/etc/auto-install.json"]="$BASE_DIR/product_a/etc"    # no auto app installing
 
-        ["product/priv-app/Viper4AndroidFX"]="$BASE_DIR/product_a/priv-app/Viper4AndroidFX:clear:content:valid" # Viper Soundfx
-        ["product/etc/permissions/privapp-permissions-dsps.xml"]="$BASE_DIR/product_a/etc/permissions"          # Viperfx perms
-        ["system/etc/audio_effects.conf"]="$BASE_DIR/system_a/system/etc"                                       # Viperfx and Dolby configs
+        ["tmp/product_a/etc/device_features"]="$BASE_DIR/product_a/etc/device_features:clear:content"
+        ["tmp/product_a/etc/displayconfig"]="$BASE_DIR/product_a/etc/displayconfig:clear:content"
+        ["tmp/product_a/overlay"]="$BASE_DIR/product_a/overlay:content"
+        ["tmp/product_a/priv-app/MiuiCamera"]="$BASE_DIR/product_a/priv-app/MiuiCamera:clear:content:valid"
+        ["tmp/product_a/app/MiuiBiometric"]="$BASE_DIR/product_a/app/MiuiBiometric:clear:content:valid"
 
-        ["product/Moverlay"]="$BASE_DIR/product_a/overlay:content"  # MIUI / HOS1
-    #    ["product/Hoverlay"]="$BASE_DIR/product_a/overlay:content" # HOS1.1 / HOS2
-
-        ["product/priv-app/MiuiCamera"]="$BASE_DIR/product_a/priv-app/MiuiCamera:clear:content:valid"     # Stock cam Miui/hos1
-    #    ["product/priv-app/MiuiCamerauni"]="$BASE_DIR/product_a/priv-app/MiuiCamera:clear:content"       # Universal cam for hos2
-    #    ["product/app/MiuiBiometric"]="$BASE_DIR/product_a/app/MiuiBiometric:clear:content"              # face unlock
-        ["product/app/LatinImeGoogle"]="$BASE_DIR/product_a/app/LatinImeGoogle:clear:content:valid"       # Gboard
-
-        # Pyro Icons
-        ["product/media/theme/default/com.android.systemui"]="$BASE_DIR/product_a/media/theme/default" # Custom icons, A BIG NO FOR HOS2!
+#
+#
+#        ["vendor/overlay"]="$BASE_DIR/vendor_a/overlay:content" # Rounded Ui
+#        ["vendor/etc"]="$BASE_DIR/vendor_a/etc:content"         # thermals
+#
+#    #    ["product/priv-app/Viper4AndroidFX"]="$BASE_DIR/product_a/priv-app/Viper4AndroidFX:clear:content:valid" # Viper Soundfx
+#    #    ["product/etc/permissions/privapp-permissions-dsps.xml"]="$BASE_DIR/product_a/etc/permissions"          # Viperfx perms
+#    #    ["system/etc/audio_effects.conf"]="$BASE_DIR/system_a/system/etc"                                       # Viperfx and Dolby configs
+#
+#        ["product/Moverlay"]="$BASE_DIR/product_a/overlay:content"  # MIUI / HOS1
+#    #    ["product/Hoverlay"]="$BASE_DIR/product_a/overlay:content" # HOS1.1 / HOS2
+#
+#        ["product/priv-app/MiuiCamera"]="$BASE_DIR/product_a/priv-app/MiuiCamera:clear:content:valid"     # Stock cam Miui/hos1
+#    #    ["product/priv-app/MiuiCamerauni"]="$BASE_DIR/product_a/priv-app/MiuiCamera:clear:content"       # Universal cam for hos2
+#        ["product/app/MiuiBiometric"]="$BASE_DIR/product_a/app/MiuiBiometric:clear:content:valid"         # face unlock fix
+#    #    ["product/app/LatinImeGoogle"]="$BASE_DIR/product_a/app/LatinImeGoogle:clear:content:valid"       # Gboard for CN base
+#        ["product/priv-app/MiuiHomeT"]="$BASE_DIR/product_a/priv-app/MiuiHomeT:clear:content:valid"       # Add miui home launcher MIUI only
+#
+#        # theme stuff
+#        ["product/media/theme/default/com.android.systemui"]="$BASE_DIR/product_a/media/theme/default" # Custom status-bar icons
+#        ["product/media/theme/default/icons"]="$BASE_DIR/product_a/media/theme/default" # Custom app icons
 
         # CN
     #    ["product/CN"]="$BASE_DIR/product_a:content"
@@ -688,6 +913,7 @@ run_copier() {
     #    ["product/TW"]="Install Hyper TW Dialer/MMS if it's a Global A15 Base?"
     #    ["system_ext/priv-app"]="Add CN AuthManager if it's a Global A15 Base??"
     #    ["product/app/MIUIThemeManager"]="Add CN ThemeManager if it's a Global A15 Base??"
+        ["product/priv-app/MiuiHomeT"]="Add CN Miui home launcher if it's a Global A13 Base?"
     )
     
     # Get fallback destination path
@@ -766,52 +992,80 @@ run_copier() {
         fi
         
         echo -e "  ${GREEN}✓ Adding permissions to XML...${NORMAL}"
+# add to perms
+#
+#   <privapp-permissions package="com.android.contacts">
+#      <permission name="android.permission.CALL_PRIVILEGED" />
+#      <permission name="android.permission.READ_PHONE_STATE" />
+#      <permission name="android.permission.MODIFY_PHONE_STATE" />
+#      <permission name="android.permission.ALLOW_ANY_CODEC_FOR_PLAYBACK" />
+#      <permission name="android.permission.REBOOT" />
+#      <permission name="android.permission.UPDATE_DEVICE_STATS" />
+#      <permission name="android.permission.WRITE_APN_SETTINGS" />
+#      <permission name="android.permission.WRITE_SECURE_SETTINGS" />
+#      <permission name="android.permission.BIND_DIRECTORY_SEARCH" />
+#      <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+#      <permission name="android.permission.INTERACT_ACROSS_USERS" />
+#   </privapp-permissions>
+#   <privapp-permissions package="com.android.incallui">
+#      <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+#      <permission name="android.permission.READ_PHONE_STATE" />
+#      <permission name="android.permission.MODIFY_PHONE_STATE" />
+#      <permission name="android.permission.CONTROL_INCALL_EXPERIENCE" />
+#      <permission name="android.permission.STOP_APP_SWITCHES" />
+#      <permission name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+#      <permission name="android.permission.STATUS_BAR" />
+#      <permission name="android.permission.CAPTURE_AUDIO_OUTPUT" />
+#      <permission name="android.permission.CALL_PRIVILEGED" />
+#      <permission name="android.permission.WRITE_MEDIA_STORAGE" />
+#      <permission name="android.permission.INTERACT_ACROSS_USERS" />
+#      <permission name="android.permission.MANAGE_USERS" />
+#      <permission name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
+#   </privapp-permissions>
+#   <privapp-permissions package="com.android.mms">
+#      <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+#      <permission name="android.permission.READ_PHONE_STATE" />
+#      <permission name="android.permission.CALL_PRIVILEGED" />
+#      <permission name="android.permission.GET_ACCOUNTS_PRIVILEGED" />
+#      <permission name="android.permission.WRITE_SECURE_SETTINGS" />
+#      <permission name="android.permission.SEND_SMS_NO_CONFIRMATION" />
+#      <permission name="android.permission.SEND_RESPOND_VIA_MESSAGE" />
+#      <permission name="android.permission.UPDATE_APP_OPS_STATS" />
+#      <permission name="android.permission.MODIFY_PHONE_STATE" />
+#      <permission name="android.permission.WRITE_MEDIA_STORAGE" />
+#      <permission name="android.permission.MANAGE_USERS" />
+#      <permission name="android.permission.WRITE_APN_SETTINGS" />
+#      <permission name="android.permission.INTERACT_ACROSS_USERS" />
+#      <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
+#   </privapp-permissions>
         
         local tmpfile=$(mktemp)
         cat <<'EOF' > "$tmpfile"
-   <privapp-permissions package="com.android.contacts">
-      <permission name="android.permission.CALL_PRIVILEGED" />
-      <permission name="android.permission.READ_PHONE_STATE" />
-      <permission name="android.permission.MODIFY_PHONE_STATE" />
-      <permission name="android.permission.ALLOW_ANY_CODEC_FOR_PLAYBACK" />
-      <permission name="android.permission.REBOOT" />
-      <permission name="android.permission.UPDATE_DEVICE_STATS" />
-      <permission name="android.permission.WRITE_APN_SETTINGS" />
-      <permission name="android.permission.WRITE_SECURE_SETTINGS" />
-      <permission name="android.permission.BIND_DIRECTORY_SEARCH" />
-      <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
-      <permission name="android.permission.INTERACT_ACROSS_USERS" />
-   </privapp-permissions>
-   <privapp-permissions package="com.android.incallui">
-      <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
-      <permission name="android.permission.READ_PHONE_STATE" />
-      <permission name="android.permission.MODIFY_PHONE_STATE" />
-      <permission name="android.permission.CONTROL_INCALL_EXPERIENCE" />
-      <permission name="android.permission.STOP_APP_SWITCHES" />
-      <permission name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+   <privapp-permissions package="com.miui.home">
+      <permission name="android.permission.CHANGE_COMPONENT_ENABLED_STATE" />
+      <permission name="android.permission.SET_WALLPAPER_COMPONENT" />
+      <permission name="android.permission.BIND_WALLPAPER" />
+      <permission name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" />
+      <permission name="android.permission.BIND_APPWIDGET" />
+      <permission name="android.permission.CHANGE_CONFIGURATION" />
+      <permission name="android.permission.DELETE_PACKAGES" />
+      <permission name="android.permission.DUMP" />
       <permission name="android.permission.STATUS_BAR" />
-      <permission name="android.permission.CAPTURE_AUDIO_OUTPUT" />
-      <permission name="android.permission.CALL_PRIVILEGED" />
-      <permission name="android.permission.WRITE_MEDIA_STORAGE" />
-      <permission name="android.permission.INTERACT_ACROSS_USERS" />
-      <permission name="android.permission.MANAGE_USERS" />
-      <permission name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
-   </privapp-permissions>
-   <privapp-permissions package="com.android.mms">
-      <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
-      <permission name="android.permission.READ_PHONE_STATE" />
-      <permission name="android.permission.CALL_PRIVILEGED" />
-      <permission name="android.permission.GET_ACCOUNTS_PRIVILEGED" />
-      <permission name="android.permission.WRITE_SECURE_SETTINGS" />
-      <permission name="android.permission.SEND_SMS_NO_CONFIRMATION" />
-      <permission name="android.permission.SEND_RESPOND_VIA_MESSAGE" />
+      <permission name="android.permission.UPDATE_DEVICE_STATS" />
+      <permission name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
       <permission name="android.permission.UPDATE_APP_OPS_STATS" />
-      <permission name="android.permission.MODIFY_PHONE_STATE" />
-      <permission name="android.permission.WRITE_MEDIA_STORAGE" />
-      <permission name="android.permission.MANAGE_USERS" />
-      <permission name="android.permission.WRITE_APN_SETTINGS" />
+      <permission name="android.permission.MEDIA_CONTENT_CONTROL" />
+      <permission name="android.permission.SET_PROCESS_LIMIT" />
+      <permission name="android.permission.PACKAGE_USAGE_STATS" />
+      <permission name="android.permission.WRITE_SECURE_SETTINGS" />
       <permission name="android.permission.INTERACT_ACROSS_USERS" />
-      <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
+      <permission name="android.permission.MANAGE_USERS" />
+      <permission name="android.permission.FORCE_STOP_PACKAGES" />
+      <permission name="android.permission.START_TASKS_FROM_RECENTS" />
+      <permission name="android.permission.CONTROL_REMOTE_APP_TRANSITION_ANIMATIONS" />
+      <permission name="android.permission.REAL_GET_TASKS" />
+      <permission name="android.permission.ALLOW_SLIPPERY_TOUCHES" />
+      <permission name="android.permission.READ_PHONE_STATE" />
    </privapp-permissions>
 EOF
         
@@ -941,7 +1195,7 @@ EOF
 }
 
 run_miext_mover() {
-    echo -e "${BOLD}${CYAN}[4/7] Running Pyro MI_EXT Mover...${NORMAL}"
+    echo -e "${BOLD}${CYAN}[4/11] Running Pyro MI_EXT Mover...${NORMAL}"
     log_message "INFO" "Starting Pyro_miext_mover"
     
     # Configuration
@@ -1009,185 +1263,182 @@ run_miext_mover() {
     log_message "INFO" "Pyro_miext_mover completed. Moved: $moved_count, Errors: $errors"
 }
 
-run_super_packer() {
-    echo -e "${BOLD}${CYAN}[8/8] Running Super Packer 4000...${NORMAL}"
-    log_message "INFO" "Starting Super_packer_4000"
+run_file_appender() {
+    echo -e "${BOLD}${CYAN}[8/11] Running Pyro File Appender...${NORMAL}"
+    log_message "INFO" "Starting Pyro_file_appender"
     
-    # Configuration
-    local METADATA_SIZE=65536
-    local SUPER_NAME="super"
-    local METADATA_SLOTS=3
-    local DEVICE_SIZE=9126805504
-    local OUTPUT_IMAGE="$OUTPUT_DIR/super.img"
-    local GROUP_A_SIZE=9124708352
-    local GROUP_B_SIZE=9124708352
-    
-    # File pairs for moving (source:target)
-    local FILES=(
-        "vendor_a.new.img:vendor_a.img"
-        "mi_ext.new.img:mi_ext_a.img"
-        "product.new.img:product_a.img"
-        "system.new.img:system_a.img"
-        "system_ext.new.img:system_ext_a.img"
-        "mi_ext_a.new.img:mi_ext_a.img"
-        "product_a.new.img:product_a.img"
-        "system_a.new.img:system_a.img"
-        "system_ext_a.new.img:system_ext_a.img"
+    # Configuration - Map of files to their content to append
+    declare -A file_append_map=(
+        ["$BASE_DIR/system_a/system/etc/init/hw/init.rc"]="
+# Pyro Modifications
+on init && property:ro.secureboot.devicelock=1
+    setprop ro.secureboot.lockstate locked
+
+on property:sys.boot_completed=1
+    start animationfix
+
+service animationfix /system/bin/sh -c 'settings put system deviceLevelList v:1,c:3,g:3'
+    seclabel u:r:shell:s0
+    user root
+    oneshot
+    disabled"
+
+        ["$BASE_DIR/system_ext_a/etc/cust_prop_white_keys_list"]="
+# Pyro Modifications
+ro.boot.verifiedbootstate"
+        
+        # Add more file modifications here as needed
+        # ["$BASE_DIR/path/to/another/file"]="content to append"
     )
     
-    # Phase 1: Move/Prepare Partition Images
-    echo -e "  ${CYAN}Phase 1: Preparing partition images...${NORMAL}"
+    local appended_count=0
+    local errors=0
+    local skipped_count=0
     
-    # Validate directories
-    if [[ ! -d "$SUPER_SOURCE_DIR" ]]; then
-        echo -e "  ${RED}❌ Missing source directory: $SUPER_SOURCE_DIR${NORMAL}"
-        log_message "ERROR" "Missing source directory: $SUPER_SOURCE_DIR"
-        return 1
-    fi
-    
-    if [[ ! -d "$SUPER_TARGET_DIR" ]]; then
-        echo -e "  ${RED}❌ Missing target directory: $SUPER_TARGET_DIR${NORMAL}"
-        log_message "ERROR" "Missing target directory: $SUPER_TARGET_DIR"
-        return 1
-    fi
-    
-    # Check available space
-    local source_size=$(du -bs "$SUPER_SOURCE_DIR" 2>/dev/null | cut -f1 || echo "0")
-    local avail_space=$(df -B1 "$SUPER_TARGET_DIR" 2>/dev/null | awk 'NR==2 {print $4}' || echo "0")
-    
-    if [[ $source_size -gt $avail_space && $avail_space -ne 0 ]]; then
-        echo -e "  ${RED}❌ Not enough space in $SUPER_TARGET_DIR (Needed: $((source_size/1024/1024))MB)${NORMAL}"
-        log_message "ERROR" "Insufficient space in $SUPER_TARGET_DIR"
-        return 1
-    fi
-    
-    # Move files
-    local moved_files=0
-    for pair in "${FILES[@]}"; do
-        IFS=':' read -r src tgt <<< "$pair"
-        local src_path="$SUPER_SOURCE_DIR/$src"
-        local tgt_path="$SUPER_TARGET_DIR/$tgt"
+    for target_file in "${!file_append_map[@]}"; do
+        local content_to_append="${file_append_map[$target_file]}"
         
-        if [[ ! -f "$src_path" ]]; then
-            echo -e "    ${YELLOW}⚠️ Skipping missing: $src_path${NORMAL}"
-            continue
-        fi
-        
-        # Remove old target file if exists
-        if [[ -f "$tgt_path" ]]; then
-            if ! rm -f "$tgt_path"; then
-                echo -e "    ${RED}❌ Failed to remove old file: $tgt_path${NORMAL}"
-                log_message "ERROR" "Failed to remove old file: $tgt_path"
-                return 1
+        # Try fallback path if primary doesn't exist
+        local working_file="$target_file"
+        if [[ ! -f "$target_file" ]]; then
+            local fallback_file="${target_file/_a/}"
+            if [[ -f "$fallback_file" ]]; then
+                working_file="$fallback_file"
+                echo -e "  ${YELLOW}ℹ️  Using fallback: $working_file${NORMAL}"
+            else
+                echo -e "  ${RED}❌ File not found: $target_file${NORMAL}"
+                ((errors++))
+                log_message "ERROR" "File not found: $target_file"
+                continue
             fi
         fi
         
-        # Move file
-        if mv "$src_path" "$tgt_path" 2>/dev/null; then
-            echo -e "    ${GREEN}✓ Moved: $src → $tgt${NORMAL}"
-            ((moved_files++))
-            log_message "INFO" "Moved: $src → $tgt"
+        # Check if content is already present to avoid duplicates
+        if grep -qF "Pyro Security Modifications\|Pyro Vendor Modifications\|Pyro Product Modifications" "$working_file" 2>/dev/null; then
+            echo -e "  ${YELLOW}⚠️  Pyro modifications already present in: $(basename "$working_file")${NORMAL}"
+            ((skipped_count++))
+            log_message "INFO" "Skipped (already modified): $working_file"
+            continue
+        fi
+        
+        # Create backup
+        local backup_file="${working_file}.bak"
+        if ! cp "$working_file" "$backup_file"; then
+            echo -e "  ${RED}❌ Failed to create backup for: $working_file${NORMAL}"
+            ((errors++))
+            log_message "ERROR" "Backup failed for: $working_file"
+            continue
+        fi
+        
+        # Append content to file
+        echo -e "  ${GREEN}✓ Appending to: $(basename "$working_file")${NORMAL}"
+        if echo -e "$content_to_append" >> "$working_file"; then
+            ((appended_count++))
+            log_message "INFO" "Content appended to: $working_file"
+            
+            # Preserve original permissions
+            local permissions=$(stat -c "%a" "$backup_file")
+            local owner=$(stat -c "%U:%G" "$backup_file")
+            chmod "$permissions" "$working_file"
+            chown "$owner" "$working_file"
         else
-            echo -e "    ${RED}❌ Failed to move: $src → $tgt${NORMAL}"
-            log_message "ERROR" "Failed to move: $src → $tgt"
-            return 1
+            echo -e "    ${RED}❌ Failed to append content${NORMAL}"
+            ((errors++))
+            log_message "ERROR" "Failed to append content to: $working_file"
+            # Restore from backup
+            mv "$backup_file" "$working_file"
         fi
     done
     
-    echo -e "  ${GREEN}✅ Phase 1 Complete: $moved_files partition images prepared${NORMAL}"
-    
-    # Phase 2: Build Sparse Super Image
-    echo -e "  ${CYAN}Phase 2: Building sparse super image...${NORMAL}"
-    
-    # Define image paths
-    local MI_EXT_A_IMG="$SUPER_TARGET_DIR/mi_ext_a.img"
-    local PRODUCT_A_IMG="$SUPER_TARGET_DIR/product_a.img"
-    local SYSTEM_A_IMG="$SUPER_TARGET_DIR/system_a.img"
-    local SYSTEM_EXT_A_IMG="$SUPER_TARGET_DIR/system_ext_a.img"
-    local VENDOR_A_IMG="$SUPER_TARGET_DIR/vendor_a.img"
-    
-    # Verify critical images exist
-    local REQUIRED_IMAGES=("$MI_EXT_A_IMG" "$PRODUCT_A_IMG" "$SYSTEM_A_IMG" "$SYSTEM_EXT_A_IMG" "$VENDOR_A_IMG")
-    local missing_images=0
-    
-    for img in "${REQUIRED_IMAGES[@]}"; do
-        if [[ ! -f "$img" ]]; then
-            echo -e "    ${RED}❌ Missing required image: $img${NORMAL}"
-            ((missing_images++))
-            log_message "ERROR" "Missing required image: $img"
-        fi
-    done
-    
-    if [[ $missing_images -gt 0 ]]; then
-        echo -e "  ${RED}❌ Cannot proceed: $missing_images required images missing${NORMAL}"
-        return 1
-    fi
-    
-    # Get sizes for each image
-    local MI_EXT_A_SIZE=$(stat -c%s "$MI_EXT_A_IMG" 2>/dev/null || echo "0")
-    local PRODUCT_A_SIZE=$(stat -c%s "$PRODUCT_A_IMG" 2>/dev/null || echo "0")
-    local SYSTEM_A_SIZE=$(stat -c%s "$SYSTEM_A_IMG" 2>/dev/null || echo "0")
-    local SYSTEM_EXT_A_SIZE=$(stat -c%s "$SYSTEM_EXT_A_IMG" 2>/dev/null || echo "0")
-    local VENDOR_A_SIZE=$(stat -c%s "$VENDOR_A_IMG" 2>/dev/null || echo "0")
-    
-    echo -e "    ${BLUE}📦 Building super image (sparse format)...${NORMAL}"
-    echo -e "    ${CYAN}   MI_EXT_A: $(( MI_EXT_A_SIZE / 1024 / 1024 ))MB${NORMAL}"
-    echo -e "    ${CYAN}   PRODUCT_A: $(( PRODUCT_A_SIZE / 1024 / 1024 ))MB${NORMAL}"
-    echo -e "    ${CYAN}   SYSTEM_A: $(( SYSTEM_A_SIZE / 1024 / 1024 ))MB${NORMAL}"
-    echo -e "    ${CYAN}   SYSTEM_EXT_A: $(( SYSTEM_EXT_A_SIZE / 1024 / 1024 ))MB${NORMAL}"
-    echo -e "    ${CYAN}   VENDOR_A: $(( VENDOR_A_SIZE / 1024 / 1024 ))MB${NORMAL}"
-    
-    # Check if lpmake exists
-    if ! command -v lpmake >/dev/null 2>&1; then
-        echo -e "  ${RED}❌ Error: lpmake command not found. Please install Android build tools.${NORMAL}"
-        log_message "ERROR" "lpmake command not found"
-        return 1
-    fi
-    
-    # Build super image
-    if lpmake \
-        --metadata-size "$METADATA_SIZE" \
-        --super-name "$SUPER_NAME" \
-        --metadata-slots "$METADATA_SLOTS" \
-        --device "$SUPER_NAME:$DEVICE_SIZE" \
-        --group qti_dynamic_partitions_a:"$GROUP_A_SIZE" \
-        --group qti_dynamic_partitions_b:"$GROUP_B_SIZE" \
-        --partition=mi_ext_a:none:"$MI_EXT_A_SIZE":qti_dynamic_partitions_a \
-        --image=mi_ext_a="$MI_EXT_A_IMG" \
-        --partition=mi_ext_b:none:0:qti_dynamic_partitions_b \
-        --partition=product_a:none:"$PRODUCT_A_SIZE":qti_dynamic_partitions_a \
-        --image=product_a="$PRODUCT_A_IMG" \
-        --partition=product_b:none:0:qti_dynamic_partitions_b \
-        --partition=system_a:none:"$SYSTEM_A_SIZE":qti_dynamic_partitions_a \
-        --image=system_a="$SYSTEM_A_IMG" \
-        --partition=system_b:none:0:qti_dynamic_partitions_b \
-        --partition=system_ext_a:none:"$SYSTEM_EXT_A_SIZE":qti_dynamic_partitions_a \
-        --image=system_ext_a="$SYSTEM_EXT_A_IMG" \
-        --partition=system_ext_b:none:0:qti_dynamic_partitions_b \
-        --partition=vendor_a:none:"$VENDOR_A_SIZE":qti_dynamic_partitions_a \
-        --image=vendor_a="$VENDOR_A_IMG" \
-        --partition=vendor_b:none:0:qti_dynamic_partitions_b \
-        --virtual-ab \
-        --sparse \
-        --output "$OUTPUT_IMAGE" 2>/dev/null; then
-        
-        # Set permissions
-        chmod 660 "$OUTPUT_IMAGE" 2>/dev/null || {
-            echo -e "    ${YELLOW}⚠️ Warning: Failed to set permissions on $OUTPUT_IMAGE${NORMAL}"
-        }
-        
-        local output_size=$(stat -c%s "$OUTPUT_IMAGE" 2>/dev/null || echo "0")
-        echo -e "  ${GREEN}✅ Phase 2 Complete: Sparse super image generated${NORMAL}"
-        echo -e "    ${BOLD}${GREEN}📁 Output: $OUTPUT_IMAGE${NORMAL}"
-        echo -e "    ${CYAN}📊 Size: $(( output_size / 1024 / 1024 ))MB${NORMAL}\n"
-        
-        log_message "INFO" "Super image generated successfully: $OUTPUT_IMAGE ($(( output_size / 1024 / 1024 ))MB)"
-        return 0
+    if [[ $errors -eq 0 ]]; then
+        echo -e "${GREEN}✅ File appender completed! Appended: $appended_count, Skipped: $skipped_count${NORMAL}\n"
     else
-        echo -e "  ${RED}❌ lpmake failed to generate super image${NORMAL}"
-        log_message "ERROR" "lpmake failed to generate super image"
-        return 1
+        echo -e "${YELLOW}⚠️  File appender completed with $errors error(s). Appended: $appended_count, Skipped: $skipped_count${NORMAL}\n"
     fi
+    
+    log_message "INFO" "Pyro_file_appender completed. Appended: $appended_count, Skipped: $skipped_count, Errors: $errors"
+}
+
+run_file_remover() {
+    echo -e "${BOLD}${CYAN}[9/11] Running Pyro File Remover...${NORMAL}"
+    log_message "INFO" "Starting Pyro_file_remover"
+    
+    # Configuration - Map of directories to files/folders to remove from them
+    declare -A removal_map=(
+        # Format: ["directory_path"]="file1 file2 folder1 folder2"
+        # You can also target specific subdirectories
+        ["$BASE_DIR/system_a/system/bin"]="hdrfix.rc logd.rc logd hdrfix"
+        ["$BASE_DIR/system_a/system/etc/init"]="logcattt.rc hdrfix.rc logd.rc"
+        ["$BASE_DIR/system_a/system/priv-app"]="dpmserviceapp"
+        ["$BASE_DIR/system_ext_a/priv-app"]="dpmserviceapp"
+        ["$BASE_DIR/system_ext_a/app"]="dpmserviceapp"
+        ["$BASE_DIR/product_a/media/theme/"]="cust_config"
+        ["$BASE_DIR/product_a/pangu/system/etc/permissions"]="facebook-hiddenapi-package-whitelist.xml facebook-miui.xml"
+    )
+    
+    local removed_count=0
+    local errors=0
+    local not_found_count=0
+    
+    for target_dir in "${!removal_map[@]}"; do
+        local items_to_remove="${removal_map[$target_dir]}"
+        
+        # Try fallback path if primary doesn't exist
+        local working_dir="$target_dir"
+        if [[ ! -d "$target_dir" ]]; then
+            local fallback_dir="${target_dir/_a/}"
+            if [[ -d "$fallback_dir" ]]; then
+                working_dir="$fallback_dir"
+                echo -e "  ${YELLOW}ℹ️  Using fallback directory: $working_dir${NORMAL}"
+            else
+                echo -e "  ${YELLOW}⚠️  Directory not found: $target_dir${NORMAL}"
+                ((errors++))
+                log_message "WARNING" "Directory not found: $target_dir"
+                continue
+            fi
+        fi
+        
+        echo -e "  ${CYAN}Processing directory: $(basename "$working_dir")${NORMAL}"
+        
+        # Process each item to remove
+        for item in $items_to_remove; do
+            local full_path="$working_dir/$item"
+            
+            if [[ -e "$full_path" ]]; then
+                echo -e "    ${RED}🗑️  Removing: $item${NORMAL}"
+                if rm -rf "$full_path"; then
+                    ((removed_count++))
+                    log_message "INFO" "Removed: $full_path"
+                else
+                    echo -e "      ${RED}❌ Failed to remove: $item${NORMAL}"
+                    ((errors++))
+                    log_message "ERROR" "Failed to remove: $full_path"
+                fi
+            else
+                echo -e "    ${YELLOW}ℹ️  Not found (skipping): $item${NORMAL}"
+                ((not_found_count++))
+                log_message "INFO" "Not found (skipped): $full_path"
+            fi
+        done
+    done
+    
+    if [[ $errors -eq 0 ]]; then
+        echo -e "${GREEN}✅ File remover completed! Removed: $removed_count, Not found: $not_found_count${NORMAL}\n"
+    else
+        echo -e "${YELLOW}⚠️  File remover completed with $errors error(s). Removed: $removed_count, Not found: $not_found_count${NORMAL}\n"
+    fi
+    
+    log_message "INFO" "Pyro_file_remover completed. Removed: $removed_count, Not found: $not_found_count, Errors: $errors"
+}
+
+run_super_packer() {
+    # Small patch
+    mv UKL/UnpackerSystem/product_a/pangu/system/* UKL/UnpackerSystem/system_a/system/ || true
+    rm -rf UKL/UnpackerSystem/product_a/pangu || true
+    
+    chmod +x Water.sh
+    chmod +x Burn.sh
+    ./Water.sh ./UKL/run.sh
 }
 
 get_user_selection() {
@@ -1217,7 +1468,7 @@ select_specific_scripts() {
     echo -e "\n${BOLD}${BLUE}Select scripts to run (comma-separated, e.g., 1,3,5):${NORMAL}"
     echo -e "${BLUE}────────────────────────────────────────────────────────────${NORMAL}"
     
-    for i in {1..8}; do
+    for i in {1..11}; do
         IFS='|' read -r script_name description <<< "${SCRIPTS[$i]}"
         echo -e "  ${YELLOW}[$i]${NORMAL} ${BOLD}$script_name${NORMAL}"
     done
@@ -1227,7 +1478,7 @@ select_specific_scripts() {
         read -p "Enter your selection: " selection
         
         # Validate and parse selection
-        if [[ "$selection" =~ ^[1-8](,[1-8])*$ ]]; then
+        if [[ "$selection" =~ ^[1-9](,[1-9])*$|^(10|11)(,[1-9])*$|^[1-9](,(10|11))*$|^[1-9](,[1-9]|,(10|11))*$ ]]; then
             IFS=',' read -ra selected_scripts <<< "$selection"
             
             # Remove duplicates and sort
@@ -1253,7 +1504,7 @@ select_specific_scripts() {
                 esac
             done
         else
-            echo -e "${RED}Invalid format. Use comma-separated numbers (1-8), e.g., 1,3,5${NORMAL}"
+            echo -e "${RED}Invalid format. Use comma-separated numbers (1-11), e.g., 1,3,5${NORMAL}"
         fi
     done
     
@@ -1279,7 +1530,10 @@ run_selected_scripts() {
             5) run_prop_builder "miext" "$BASE_DIR/mi_ext_a/etc/build.prop" "$current_step" "$total_scripts" ;;
             6) run_prop_builder "system" "$BASE_DIR/system_a/system/build.prop" "$current_step" "$total_scripts" ;;
             7) run_prop_builder "system_ext" "$BASE_DIR/system_ext_a/etc/build.prop" "$current_step" "$total_scripts" ;;
-            8) run_super_packer ;;
+            8) run_file_appender ;;
+            9) run_file_remover ;;
+            10) run_prop_builder "vendor" "$BASE_DIR/vendor_a/build.prop" "$current_step" "$total_scripts" ;;
+            11) run_super_packer ;;
         esac
     done
     
@@ -1289,8 +1543,20 @@ run_selected_scripts() {
 }
 
 main() {
+    local codename="$1"
+    
     print_header
     validate_environment
+    
+    if [[ -n "$codename" ]]; then
+        print_status "Found $codename >:)"
+        export DEVICE_CODENAME="$codename"
+        print_status "'$codename' applied successfully!"
+    else
+        print_warning "No codename found, using default: rosemary >_<"
+        export DEVICE_CODENAME="rosemary"
+    fi
+    
     
     while true; do
         print_menu
@@ -1302,7 +1568,7 @@ main() {
             case "${choice,,}" in
                 a|all)
                     echo -e "\n${BOLD}${GREEN}Running ALL scripts in sequence...${NORMAL}\n"
-                    run_selected_scripts {1..8}
+                    run_selected_scripts {1..11}
                     return 0
                     ;;
                 s|specific|select)
@@ -1329,5 +1595,5 @@ main() {
 
 # Script entry point
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
+    main "$1"
 fi

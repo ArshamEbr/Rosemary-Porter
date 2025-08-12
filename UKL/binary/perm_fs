@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+clear
+
+config="config/${pack_d}"
+
+if [ "${config_e2fs}" == "1" ]; then
+  file_config="${config}/${pack_d}_fs_config_e2fsdroid"
+else
+  file_config="${config}/${pack_d}_fs_config"
+fi
+
+echo
+echo ".....${verification} ${pack_d}_fs_config..."
+
+if ! perm-fs "${pack_d}" "${file_config}"; then
+  return 1
+fi
+
+unset config_e2fs
+clear
