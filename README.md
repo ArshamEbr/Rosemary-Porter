@@ -50,6 +50,7 @@ your stock rom `firmware` files also extracted inside `output/fw` if you want to
 - Ensure you run scripts with `sudo` to avoid permission issues.
 - Contributions, bug reports, and feature requests are welcome.
 - For direct contact, find me on Telegram: @ArshamEbr.
+- Everything will be cleaned except the `port`, `stock`, and `output` folders to preserve free space.
 - Good luck! Happy porting 🎉
 
 ---
