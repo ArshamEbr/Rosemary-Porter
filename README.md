@@ -39,12 +39,14 @@ chmod +x Ash.sh && sudo ./Ash.sh
 ```
 
 Upon successful completion, your ported ROM will be generated inside the `output` folder.
+your stock rom `firmware` files also extracted inside `output/fw` if you want to flash.
 
 ---
 
 ## 🎯 Additional Information
 
-- feel free to modify the scripts to your heart's content, All scripts are fully commented to facilitate customization.
+- Feel free to modify the scripts to your heart's content, All scripts are fully commented to facilitate customization.
+- This version of UKL has been enhanced to support EROFS unpacking and repacking, as well as conversion from ext4 to EROFS. It can be used independently.
 - Ensure you run scripts with `sudo` to avoid permission issues.
 - Contributions, bug reports, and feature requests are welcome.
 - For direct contact, find me on Telegram: @ArshamEbr.
